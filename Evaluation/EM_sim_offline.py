@@ -183,7 +183,5 @@ def print_summary(times, smaes, corr_error):
     print(np.std(corr_error,0))
 
 if __name__ == "__main__":
-    #times, smaes, corr_error = main(write = True, path = "/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/")
-    #data_writing(path = '/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/')
      runtimes, smaes, scaled_error = main_part()
 

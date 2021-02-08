@@ -35,7 +35,7 @@ def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path 
     
     return X_masked, X
 
-def data_writing(path='/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/', START=1, NUM_RUNS=20):
+def data_writing(path=None, START=1, NUM_RUNS=20):
     for i in range(START, NUM_RUNS+START):
         _, _ = generate_data(seed = i, write = True, path = path)
 
@@ -91,7 +91,7 @@ def EM_evaluate(WINDOW_SIZE = 200, decay_coef=0.5, batch_c=5, NUM_SAMPLES=2000, 
     
     return res
 
-def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WINDOW_SIZE = 200, BATCH_SIZE=40, decay_coef=0.5, verbose = True, type = ['F', 'S', 'N']):
+def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WINDOW_SIZE = 200, BATCH_SIZE=40, decay_coef=0.5, verbose = True, type = ['F', 'S', 'N'], path = None):
     NUM_BATCH = int(NUM_SAMPLES*3/BATCH_SIZE)
     res_pvals = {t:np.zeros((NUM_BATCH,NUM_STEPS)) for t in type}
     res_stats = {t:np.zeros((NUM_BATCH,NUM_STEPS)) for t in type}
@@ -102,8 +102,8 @@ def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WI
         oem = OnlineExpectationMaximization(cont_indices, ord_indices, window_size=WINDOW_SIZE)
         pval, test_stat = oem.test_one_pass(X_masked, BATCH_SIZE = BATCH_SIZE, 
                                             nsample = nsamples, decay_coef=decay_coef, verbose = verbose, type =type)
-        pval.to_csv("/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/sim_CP_pvalues_rep_"+str(i)+"_"+ str(nsamples)+".csv")
-        test_stat.to_csv("/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/sim_CP_statistics_rep_"+str(i)+"_"+ str(nsamples)+".csv")
+        pval.to_csv(paht + "sim_CP_pvalues_rep_"+str(i)+"_"+ str(nsamples)+".csv")
+        test_stat.to_csv(path + "sim_CP_statistics_rep_"+str(i)+"_"+ str(nsamples)+".csv")
         for t in type:
             res_pvals[t][:,i-START] = np.array(pval[t])  
             res_stats[t][:,i-START] = np.array(test_stat[t])
@@ -139,11 +139,11 @@ def plot_res(mean_smae_offline, mean_smae_online):
         ax.legend(loc = 'best')
         ax.set_title(titles[i])
         
-def store_res(mean_smae_online, mean_smae_offline, test_stat):
+def store_res(mean_smae_online, mean_smae_offline, test_stat, path = None):
     df = np.concatenate([mean_smae_online, mean_smae_offline], axis=1)
     df = pd.DataFrame(df, columns = ['online cont', 'online bin', 'online ord', 'offline cont', 'offline bin', 'offline ord'])
     df = pd.concat([df, test_stat], axis=1)
-    df.to_csv("/Users/yuxuan/Box/imputation/python_files/changing_dist_generated/smaes_EMmethods_simonline.csv", index=False)
+    df.to_csv(path + "smaes_EMmethods_simonline.csv", index=False)
     
 
 if __name__ == "__main__":
