@@ -35,49 +35,6 @@ def data_writing(path, START=1, NUM_RUNS=20):
 def get_error(smae):
     return np.array([np.mean(smae[:5]), np.mean(smae[5:10]), np.mean(smae[10:])])
 
-def main_part(WINDOW_SIZE=200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE=40, START=1, NUM_STEPS=10, write = False, path = None):
-    scaled_error =  np.zeros((NUM_STEPS, 2))
-    smaes =  np.zeros((NUM_STEPS, 3, 2))
-    runtimes =  np.zeros((NUM_STEPS, 2))
-    
-    for i in range(START, NUM_STEPS + START):
-        print("starting epoch: " + str(i))
-        print("\n")
-        X_masked, X, sigma = generate_data(seed = i, NUM_SAMPLES=NUM_SAMPLES, write = write, path = path)
-        n,p = X.shape
-    
-        
-        cont_indices = np.array([True] * 5 + [False] * 10)
-        ord_indices = np.array([False] * 5 + [True] * 10)
-        # ONLINE EM: one core
-        oem = OnlineExpectationMaximization(cont_indices, ord_indices, window_size=WINDOW_SIZE)
-        start_time = time.time()
-        X_imp = oem.fit_multiple_pass(X_masked, BATCH_SIZE = BATCH_SIZE, batch_c = batch_c, max_workers = 1)
-        end_time = time.time()
-        smae = get_smae(X_imp, X, X_masked)
-        runtimes[i-1,0] = end_time - start_time
-        scaled_error[i-1,0] = get_scaled_error(oem.get_sigma(), sigma)
-        smaes[i-1,0,0] = np.mean(smae[:5])
-        smaes[i-1,1,0] = np.mean(smae[5:10])
-        smaes[i-1,2,0] = np.mean(smae[10:])
-        
-
-        # ONLINE EM: four cores
-        oem = OnlineExpectationMaximization(cont_indices, ord_indices, window_size=WINDOW_SIZE)
-        start_time = time.time()
-        X_imp = oem.fit_multiple_pass(X_masked, BATCH_SIZE = BATCH_SIZE, batch_c = batch_c,  max_workers = 4)
-        end_time = time.time()
-        smae = get_smae(X_imp, X, X_masked)
-        runtimes[i-1,1] = end_time - start_time
-        scaled_error[i-1,1] = get_scaled_error(oem.get_sigma(), sigma)
-        smaes[i-1,0,1] = np.mean(smae[:5])
-        smaes[i-1,1,1] = np.mean(smae[5:10])
-        smaes[i-1,2,1] = np.mean(smae[10:])
-        
-    print_summary(runtimes, smaes, scaled_error)
-    return runtimes, smaes, scaled_error
-
-
 def main(WINDOW_SIZE=200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE=40, START=1, NUM_STEPS=10, write = False, path = None):
     scaled_error =  np.zeros((NUM_STEPS, 6))
     smaes =  np.zeros((NUM_STEPS, 3, 6))
@@ -183,5 +140,5 @@ def print_summary(times, smaes, corr_error):
     print(np.std(corr_error,0))
 
 if __name__ == "__main__":
-     runtimes, smaes, scaled_error = main_part()
+     runtimes, smaes, scaled_error = main()
 

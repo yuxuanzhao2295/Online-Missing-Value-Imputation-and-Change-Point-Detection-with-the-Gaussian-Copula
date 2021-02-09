@@ -7,11 +7,12 @@ from evaluation.helpers import *
 import pandas as pd
 import time
 
-def read_data():
-    df = pd.read_csv("/data_movielens1m_1000rating.csv").to_numpy()
-    pd.DataFrame(df).to_csv("/data_movielens1m_1000rating.csv", index = False)
+def read_data(path = None, write = False):
+    df = pd.read_csv(path + "data_movielens1m_1000rating.csv").to_numpy()
+    #pd.DataFrame(df).to_csv("/data_movielens1m_1000rating.csv", index = False)
     X_masked, validation_indices, _ = mask(df, 0.1, seed=1) # 10 percent for validation, only used when tuning parameter is needed
-    pd.DataFrame(X_masked).to_csv("/data_movielens1m_traintest.csv", index = False)
+    if write:
+        pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_traintest.csv", index = False)
     return X_masked, validation_indices
 
 def data_writing(NUM_STEPS=10, MASK_FRACTION=0.1, path = None):
@@ -22,7 +23,7 @@ def data_writing(NUM_STEPS=10, MASK_FRACTION=0.1, path = None):
         pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
     
 
-def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATCH_SIZE = 121, NUM_STEPS = 10, path = None):
+def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATCH_SIZE = 121, NUM_STEPS = 10, path = None, write = False):
     X_traintest, validation_indices = read_data()
     X = X_traintest
     seed_last = 0
@@ -32,7 +33,8 @@ def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATC
 
     for i in range(1, NUM_STEPS + 1):
         X_masked, mask_indices, seed_last = mask(X_traintest, MASK_FRACTION, seed=seed_last+1) # another 10% for test
-        pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
+        if write:
+            pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
 
         # STANDARD EM: one core 
         em = ExpectationMaximization()
