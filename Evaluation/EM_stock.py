@@ -8,7 +8,7 @@ import pandas as pd
 import itertools
 from collections import defaultdict
 
-def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SIZE = 40, nsample=200, seed = 1, CP = False, type = ['F','S','N'], name = None, path = None):
+def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SIZE = 40, nsample=200, seed = 1, CP = False, type = ['F','S','N'], name = None):
     n,p = X.shape
     ptrue = p//2
     
@@ -69,8 +69,8 @@ def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SI
     error_trials = pd.DataFrame(np.concatenate([np.array(error_trials), np.array(pd.DataFrame(sigma_diff))], axis=1), 
                                 columns = ['MAE', "RMSE", 'F', 'S', 'N'])
     if CP:
-        pd.DataFrame(pvalues).to_csv(path + 'CP_pval_'+name+'.csv')
-        pd.DataFrame(test_stats).to_csv(path + 'CP_test_stats_'+name+'.csv')
+        pd.DataFrame(pvalues).to_csv('Results/EM_CP_pval_'+name+'.csv')
+        pd.DataFrame(test_stats).to_csv('Results/EM_CP_test_stats_'+name+'.csv')
     return error_trials
 
 
@@ -93,11 +93,11 @@ def main(X, window_size_list, size_list):
         print('finish ' + str(window) + ' ' + str(size))
     return res
 
-def main_tuning(path = 'RealData/'):
+def main_tuning(path = 'RealData/', window_list = [50, 100, 200]):
     log_return = np.array(pd.read_csv(path + 'pred_log_return_DJIA.csv'))[:,1:]
-    res_pred_log_return = main(log_return, [50, 100, 200], [0.5])
+    res_pred_log_return = main(log_return, window_list, [0.5])
     price = np.array(pd.read_csv(path + 'pred_price_DJIA.csv'))[:,1:]
-    res_pred_price = main(price, [50, 100, 200], [0.5])
+    res_pred_price = main(price, window_list, [0.5])
     print_summary(res_pred_log_return) # best window 200
     print_summary(res_pred_price) # best window 50
     return res_pred_log_return, res_pred_price
@@ -133,9 +133,12 @@ def store_res(res_pred_log_return, res_pred_price, path = 'Results/'):
     df.to_csv(path + "err_EMmethods_stocks.csv", index=False)
     
 if __name__ == "__main__":
-    #res_pred_log_return, res_pred_price = main_run()
-    res_pred_log_return, res_pred_price = main_run(True)
-    #res_pred_log_return[0].plot()
-    #res_pred_price[0].plot()
-    #store_res(res_pred_log_return, res_pred_price)
+    # For tuning 
+    # res_log_return, res_price = main_tuning()
+    # without MC test
+    res_pred_log_return, res_pred_price = main_run()
+    # with MC test
+    #res_pred_log_return, res_pred_price = main_run(True)
+    # store result
+    store_res(res_pred_log_return, res_pred_price)
     
