@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm, expon
 import itertools
 import time
+import os
+import sys
 
-def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path = None):
+def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     i = seed
     sigma1 = generate_sigma(3*i-2)
     sigma2 = generate_sigma(3*i-1)
@@ -29,6 +31,7 @@ def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path 
     X_masked, mask_indices = mask_types(X, MASK_NUM, seed=i)
 
     if write:
+        path = os.getcwd() + '/SimData/'
         pd.DataFrame(X).to_csv(path+'sim_online_true_rep'+str(i)+'.csv', index=False)
         pd.DataFrame(X_masked).to_csv(path+'sim_online_masked_rep'+str(i)+'.csv', index=False)
 
@@ -37,7 +40,7 @@ def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path 
 
 def data_writing(path=None, START=1, NUM_RUNS=20):
     for i in range(START, NUM_RUNS+START):
-        _, _ = generate_data(seed = i, write = True, path = path)
+        _, _ = generate_data(seed = i, write = True)
 
 
 def EM_evaluate(WINDOW_SIZE = 200, decay_coef=0.5, batch_c=5, NUM_SAMPLES=2000, BATCH_SIZE=40, START=1, NUM_STEPS=10, online = True):
@@ -91,22 +94,20 @@ def EM_evaluate(WINDOW_SIZE = 200, decay_coef=0.5, batch_c=5, NUM_SAMPLES=2000, 
     
     return res
 
-def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WINDOW_SIZE = 200, BATCH_SIZE=40, decay_coef=0.5, verbose = True, type = ['F', 'S', 'N'], path = None):
+def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WINDOW_SIZE = 200, BATCH_SIZE=40, decay_coef=0.5, verbose = True, type = ['F', 'S', 'N']):
     NUM_BATCH = int(NUM_SAMPLES*3/BATCH_SIZE)
     res_pvals = {t:np.zeros((NUM_BATCH,NUM_STEPS)) for t in type}
-    res_stats = {t:np.zeros((NUM_BATCH,NUM_STEPS)) for t in type}
     for i in range(START, NUM_STEPS+START):
         X_masked, X = generate_data(seed = i, NUM_SAMPLES = NUM_SAMPLES)
         cont_indices = np.array([True] * 5 + [False] * 10)
         ord_indices = np.array([False] * 5 + [True] * 10)
         oem = OnlineExpectationMaximization(cont_indices, ord_indices, window_size=WINDOW_SIZE)
-        pval, test_stat = oem.test_one_pass(X_masked, BATCH_SIZE = BATCH_SIZE, 
+        pval, _ = oem.test_one_pass(X_masked, BATCH_SIZE = BATCH_SIZE, 
                                             nsample = nsamples, decay_coef=decay_coef, verbose = verbose, type =type)
-        pval.to_csv(paht + "sim_CP_pvalues_rep_"+str(i)+"_"+ str(nsamples)+".csv")
-        test_stat.to_csv(path + "sim_CP_statistics_rep_"+str(i)+"_"+ str(nsamples)+".csv")
+        path = os.getcwd() + '/Results/'
+        pval.to_csv(paht + "simonline_EMmethod_pvalues_rep_"+str(i)+"_"+ str(nsamples)+".csv")
         for t in type:
             res_pvals[t][:,i-START] = np.array(pval[t])  
-            res_stats[t][:,i-START] = np.array(test_stat[t])
         print('finish iteration '+str(i))
     return res_pvals, res_stats
     
@@ -114,6 +115,7 @@ def monte_carlo_test(START=1, NUM_STEPS=10, NUM_SAMPLES=2000, nsamples = 200, WI
 def main_run(WINDOW_SIZE = 200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE=40, START=1, NUM_STEPS=10):
     mean_smae_online, time_online, test_stat = EM_evaluate(WINDOW_SIZE = WINDOW_SIZE, decay_coef=decay_coef, BATCH_SIZE=BATCH_SIZE, START=START, NUM_STEPS=NUM_STEPS, online = True)
     mean_smae_offline, time_offline = EM_evaluate(batch_c=batch_c, BATCH_SIZE=BATCH_SIZE, START=START, NUM_STEPS=NUM_STEPS, online = False)
+    store_res(mean_smae_online, mean_smae_offline, test_stat)
     return mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline
 
 def main_online_tune(window_list, coef_list, BATCH_SIZE=40, START=11, NUM_STEPS=10):
@@ -139,18 +141,20 @@ def plot_res(mean_smae_offline, mean_smae_online):
         ax.legend(loc = 'best')
         ax.set_title(titles[i])
         
-def store_res(mean_smae_online, mean_smae_offline, test_stat, path = "/Results/"):
+def store_res(mean_smae_online, mean_smae_offline, test_stat):
     df = np.concatenate([mean_smae_online, mean_smae_offline], axis=1)
     df = pd.DataFrame(df, columns = ['online cont', 'online bin', 'online ord', 'offline cont', 'offline bin', 'offline ord'])
     df = pd.concat([df, test_stat], axis=1)
+    path = os.getcwd() + '/Results/'
     df.to_csv(path + "simonline_EMmethods_smaes.csv", index=False)
     
 
 if __name__ == "__main__":
+    # fill out the path 
+    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+    # sys.path.append(path)
     #main_online_tune([50, 100, 200], [0.5]) # best window size 200
-    #mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline = main_run(WINDOW_SIZE = 200)
+    mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline = main_run(WINDOW_SIZE = 200)
     # mean online 26s, offline 21s
     # monte carlo test
-    #res_pvals, res_stats = monte_carlo_test(1,10,nsamples=499)
-
-    
+    #res_pvals, res_stats = monte_carlo_test(1,10,nsamples=499)    

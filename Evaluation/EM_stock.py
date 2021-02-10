@@ -7,6 +7,8 @@ from scipy.stats import random_correlation, norm, expon
 import pandas as pd
 import itertools
 from collections import defaultdict
+import os
+import sys
 
 def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SIZE = 40, nsample=200, seed = 1, CP = False, type = ['F','S','N'], name = None):
     n,p = X.shape
@@ -69,8 +71,9 @@ def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SI
     error_trials = pd.DataFrame(np.concatenate([np.array(error_trials), np.array(pd.DataFrame(sigma_diff))], axis=1), 
                                 columns = ['MAE', "RMSE", 'F', 'S', 'N'])
     if CP:
-        pd.DataFrame(pvalues).to_csv('Results/EM_CP_pval_'+name+'.csv')
-        pd.DataFrame(test_stats).to_csv('Results/EM_CP_test_stats_'+name+'.csv')
+        path = os.getcwd() + '/RealData/'
+        pd.DataFrame(pvalues).to_csv(path + 'EM_CP_pval_'+name+'.csv')
+        pd.DataFrame(test_stats).to_csv(path + 'EM_CP_test_stats_'+name+'.csv')
     return error_trials
 
 
@@ -94,6 +97,7 @@ def main(X, window_size_list, size_list):
     return res
 
 def main_tuning(path = 'RealData/', window_list = [50, 100, 200]):
+    path = os.getcwd() + '/RealData/'
     log_return = np.array(pd.read_csv(path + 'pred_log_return_DJIA.csv'))[:,1:]
     res_pred_log_return = main(log_return, window_list, [0.5])
     price = np.array(pd.read_csv(path + 'pred_price_DJIA.csv'))[:,1:]
@@ -102,7 +106,8 @@ def main_tuning(path = 'RealData/', window_list = [50, 100, 200]):
     print_summary(res_pred_price) # best window 50
     return res_pred_log_return, res_pred_price
 
-def main_run(CP = False, path = 'RealData/'):
+def main_run(CP = False):
+    path = os.getcwd() + '/RealData/'
     log_return = np.array(pd.read_csv(path + 'pred_log_return_DJIA.csv'))[:,1:]
     price = np.array(pd.read_csv(path + 'pred_price_DJIA.csv'))[:,1:]
     # log return
@@ -123,22 +128,26 @@ def main_run(CP = False, path = 'RealData/'):
     end_time = time.time()
     time_price = end_time - start_time 
     res_price = [err_price, time_price]
+    store_res(res_log_return, res_price)
     return res_log_return, res_price
 
     
-def store_res(res_pred_log_return, res_pred_price, path = 'Results/'):
+def store_res(res_pred_log_return, res_pred_price):
     df = np.concatenate([res_pred_log_return[0], res_pred_price[0]], axis=1)
     df = pd.DataFrame(df, columns = ['return MAE', 'return RMSE', 'return F', 'retrun S', 'return N',
                                      'price MAE', 'price RMSE', 'price F', 'price S', 'price N'])
-    df.to_csv(path + "err_EMmethods_stocks.csv", index=False)
+    path = os.getcwd() + '/Results/'
+    df.to_csv(path + "stocks_EMmethods_err.csv", index=False)
     
 if __name__ == "__main__":
+    # fill out the path 
+    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+    # sys.path.append(path)
     # For tuning 
     # res_log_return, res_price = main_tuning()
     # without MC test
     res_pred_log_return, res_pred_price = main_run()
     # with MC test
     #res_pred_log_return, res_pred_price = main_run(True)
-    # store result
-    store_res(res_pred_log_return, res_pred_price)
+
     

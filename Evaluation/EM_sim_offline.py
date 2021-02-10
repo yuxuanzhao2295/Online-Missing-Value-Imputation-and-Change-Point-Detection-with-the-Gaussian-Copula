@@ -7,7 +7,7 @@ from evaluation.helpers import *
 import pandas as pd
 import time
 import os
-import path
+import sys
 
 def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     i = seed
@@ -38,7 +38,7 @@ def data_writing(START=1, NUM_RUNS=20):
 def get_error(smae):
     return np.array([np.mean(smae[:5]), np.mean(smae[5:10]), np.mean(smae[10:])])
 
-def main(WINDOW_SIZE=200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE=40, START=1, NUM_STEPS=10, write = False, path = None):
+def main(WINDOW_SIZE=200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE=40, START=1, NUM_STEPS=10, write = False):
     scaled_error =  np.zeros((NUM_STEPS, 6))
     smaes =  np.zeros((NUM_STEPS, 3, 6))
     runtimes =  np.zeros((NUM_STEPS, 6))
@@ -46,7 +46,7 @@ def main(WINDOW_SIZE=200, NUM_SAMPLES=2000,batch_c=5, decay_coef=0.5, BATCH_SIZE
     for i in range(START, NUM_STEPS + START):
         print("starting epoch: " + str(i))
         print("\n")
-        X_masked, X, sigma = generate_data(seed = i, NUM_SAMPLES=NUM_SAMPLES, write = write, path = path)
+        X_masked, X, sigma = generate_data(seed = i, NUM_SAMPLES=NUM_SAMPLES, write = write)
         n,p = X.shape
         
         
@@ -144,7 +144,8 @@ def print_summary(times, smaes, corr_error):
 
 if __name__ == "__main__":
     # fill out the path 
-    #os.chdir("path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data")
+    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+    # sys.path.append(path)
     # write data
     #data_writing()
     runtimes, smaes, scaled_error = main()

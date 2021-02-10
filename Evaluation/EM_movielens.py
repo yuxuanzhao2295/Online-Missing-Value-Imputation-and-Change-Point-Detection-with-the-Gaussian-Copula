@@ -6,18 +6,21 @@ from scipy.stats import random_correlation, norm, expon
 from evaluation.helpers import *
 import pandas as pd
 import time
+import os
+import sys
 
-def read_data(path = None, write = False):
+def read_data(write = False):
+    path = os.getcwd() + '/RealData/'
     df = pd.read_csv(path + "data_movielens1m_1000rating.csv").to_numpy()
-    #pd.DataFrame(df).to_csv("/data_movielens1m_1000rating.csv", index = False)
     X_masked, validation_indices, _ = mask(df, 0.1, seed=1) # 10 percent for validation, only used when tuning parameter is needed
     if write:
         pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_traintest.csv", index = False)
     return X_masked, validation_indices
 
-def data_writing(NUM_STEPS=10, MASK_FRACTION=0.1, path = None):
-    X_traintest, validation_indices = read_data()
+def data_writing(NUM_STEPS=10, MASK_FRACTION=0.1):
+    X_traintest, validation_indices = read_data(True)
     seed_last = 0
+    path = os.getcwd() + '/RealData/'
     for i in range(1, NUM_STEPS + 1):
         X_masked, mask_indices, seed_last = mask(X_traintest, MASK_FRACTION, seed=seed_last+1) # another 10% for test
         pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
@@ -91,17 +94,18 @@ def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATC
     
     return times, rmse, mae
 
+def print_summary(name, data):
+    print(name)
+    print(np.mean(data,0))
+    print(np.std(data,0))
+
 
 if __name__ == "__main__":
-    times, rmse, mae = main()
-    print("run time: ")
-    print(np.mean(times,0))
-    print(np.std(times,0))
-    #
-    print("rmse: ")
-    print(np.mean(rmse,0))
-    print(np.std(rmse,0))
-    #
-    print("mae: ")
-    print(np.mean(mae,0))
-    print(np.std(mae,0))
+    # fill out the path 
+    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+    # sys.path.append(path)
+    data_writing()
+    #times, rmse, mae = main()
+    #print_summary("runtime: ", times)
+    #print_summary("rmse: ", rmse)
+    #print_summary("mae: ", mae)
