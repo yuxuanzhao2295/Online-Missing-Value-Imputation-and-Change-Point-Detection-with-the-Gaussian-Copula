@@ -6,8 +6,10 @@ from scipy.stats import norm, expon
 from evaluation.helpers import *
 import pandas as pd
 import time
+import os
+import path
 
-def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path = None):
+def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     i = seed
     sigma = generate_sigma(i)
     mean = np.zeros(sigma.shape[0])   
@@ -22,15 +24,16 @@ def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False, path 
     X_masked, mask_indices = mask_types(X, MASK_NUM, seed=i)
 
     if write:
+        path = os.getcwd() + '/SimData/'
         pd.DataFrame(X).to_csv(path+'sim_offline_true_rep'+str(i)+'.csv', index=False)
         pd.DataFrame(X_masked).to_csv(path+'sim_offline_masked_rep'+str(i)+'.csv', index=False)
 
     
     return X_masked, X, sigma
 
-def data_writing(path, START=1, NUM_RUNS=20):
+def data_writing(START=1, NUM_RUNS=20):
     for i in range(START, NUM_RUNS+START):
-        _, _, _ = generate_data(seed = i, write = True, path = path)
+        _, _, _ = generate_data(seed = i, write = True)
         
 def get_error(smae):
     return np.array([np.mean(smae[:5]), np.mean(smae[5:10]), np.mean(smae[10:])])
@@ -140,5 +143,9 @@ def print_summary(times, smaes, corr_error):
     print(np.std(corr_error,0))
 
 if __name__ == "__main__":
-     runtimes, smaes, scaled_error = main()
+    # fill out the path 
+    #os.chdir("path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data")
+    # write data
+    #data_writing()
+    runtimes, smaes, scaled_error = main()
 
