@@ -139,17 +139,18 @@ def plot_res(mean_smae_offline, mean_smae_online):
         ax.legend(loc = 'best')
         ax.set_title(titles[i])
         
-def store_res(mean_smae_online, mean_smae_offline, test_stat, path = None):
+def store_res(mean_smae_online, mean_smae_offline, test_stat, path = "/Results/"):
     df = np.concatenate([mean_smae_online, mean_smae_offline], axis=1)
     df = pd.DataFrame(df, columns = ['online cont', 'online bin', 'online ord', 'offline cont', 'offline bin', 'offline ord'])
     df = pd.concat([df, test_stat], axis=1)
-    df.to_csv(path + "smaes_EMmethods_simonline.csv", index=False)
+    df.to_csv(path + "simonline_EMmethods_smaes.csv", index=False)
     
 
 if __name__ == "__main__":
     #main_online_tune([50, 100, 200], [0.5]) # best window size 200
     #mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline = main_run(WINDOW_SIZE = 200)
     # mean online 26s, offline 21s
-    res_pvals, res_stats = monte_carlo_test(1,10,nsamples=499)
+    # monte carlo test
+    #res_pvals, res_stats = monte_carlo_test(1,10,nsamples=499)
 
     
