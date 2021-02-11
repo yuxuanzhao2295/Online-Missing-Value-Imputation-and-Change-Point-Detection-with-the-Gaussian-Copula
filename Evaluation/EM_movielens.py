@@ -1,3 +1,7 @@
+import sys
+path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+sys.path.append(path)
+
 import numpy as np
 from em.expectation_maximization import ExpectationMaximization
 from em.batch_expectation_maximization import BatchExpectationMaximization
@@ -7,7 +11,6 @@ from evaluation.helpers import *
 import pandas as pd
 import time
 import os
-import sys
 
 def read_data(write = False):
     path = os.getcwd() + '/RealData/'
@@ -26,7 +29,7 @@ def data_writing(NUM_STEPS=10, MASK_FRACTION=0.1):
         pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
     
 
-def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATCH_SIZE = 121, NUM_STEPS = 10, path = None, write = False):
+def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATCH_SIZE = 121, NUM_STEPS = 10, write = False):
     X_traintest, validation_indices = read_data()
     X = X_traintest
     seed_last = 0
@@ -37,6 +40,7 @@ def main(MASK_FRACTION = 0.1, WINDOW_SIZE=200, batch_c = 5, MAX_ITER = 100, BATC
     for i in range(1, NUM_STEPS + 1):
         X_masked, mask_indices, seed_last = mask(X_traintest, MASK_FRACTION, seed=seed_last+1) # another 10% for test
         if write:
+            path = os.getcwd() + '/RealData/'
             pd.DataFrame(X_masked).to_csv(path + "data_movielens1m_masked_"+str(i)+".csv", index=False)
 
         # STANDARD EM: one core 
@@ -101,11 +105,8 @@ def print_summary(name, data):
 
 
 if __name__ == "__main__":
-    # fill out the path 
-    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
-    # sys.path.append(path)
-    data_writing()
-    #times, rmse, mae = main()
-    #print_summary("runtime: ", times)
-    #print_summary("rmse: ", rmse)
-    #print_summary("mae: ", mae)
+    #data_writing()
+    times, rmse, mae = main()
+    print_summary("runtime: ", times)
+    print_summary("rmse: ", rmse)
+    print_summary("mae: ", mae)

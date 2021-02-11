@@ -1,3 +1,7 @@
+import sys
+path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+sys.path.append(path)
+
 import numpy as np
 from em.expectation_maximization import ExpectationMaximization
 from em.batch_expectation_maximization import BatchExpectationMaximization
@@ -7,7 +11,6 @@ from evaluation.helpers import *
 import pandas as pd
 import time
 import os
-import sys
 
 def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     i = seed
@@ -143,9 +146,6 @@ def print_summary(times, smaes, corr_error):
     print(np.std(corr_error,0))
 
 if __name__ == "__main__":
-    # fill out the path 
-    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
-    # sys.path.append(path)
     # write data
     #data_writing()
     runtimes, smaes, scaled_error = main()

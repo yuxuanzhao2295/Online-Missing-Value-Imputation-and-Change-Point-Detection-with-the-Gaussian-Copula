@@ -1,3 +1,7 @@
+import sys
+path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+sys.path.append(path)
+
 from em.online_expectation_maximization import OnlineExpectationMaximization
 import numpy as np
 from evaluation.helpers import *
@@ -8,7 +12,6 @@ import pandas as pd
 import itertools
 from collections import defaultdict
 import os
-import sys
 
 def onlineEM_predict(X, window_size=100, decay_coef=0.5, n_train = 400, BATCH_SIZE = 40, nsample=200, seed = 1, CP = False, type = ['F','S','N'], name = None):
     n,p = X.shape
@@ -140,9 +143,6 @@ def store_res(res_pred_log_return, res_pred_price):
     df.to_csv(path + "stocks_EMmethods_err.csv", index=False)
     
 if __name__ == "__main__":
-    # fill out the path 
-    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
-    # sys.path.append(path)
     # For tuning 
     # res_log_return, res_price = main_tuning()
     # without MC test

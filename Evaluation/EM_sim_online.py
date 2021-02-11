@@ -1,3 +1,8 @@
+# fill out the path 
+import sys
+path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
+sys.path.append(path)
+
 from em.online_expectation_maximization import OnlineExpectationMaximization
 from em.batch_expectation_maximization import BatchExpectationMaximization
 import numpy as np
@@ -8,7 +13,6 @@ from scipy.stats import norm, expon
 import itertools
 import time
 import os
-import sys
 
 def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     i = seed
@@ -38,7 +42,7 @@ def generate_data(seed=1, NUM_SAMPLES = 2000, MASK_NUM = 2, write = False):
     
     return X_masked, X
 
-def data_writing(path=None, START=1, NUM_RUNS=20):
+def data_writing(START=1, NUM_RUNS=20):
     for i in range(START, NUM_RUNS+START):
         _, _ = generate_data(seed = i, write = True)
 
@@ -150,11 +154,8 @@ def store_res(mean_smae_online, mean_smae_offline, test_stat):
     
 
 if __name__ == "__main__":
-    # fill out the path 
-    # path = "path/Online-Missing-Value-Imputation-Dependence-Change-Detection-for-Mixed-Data/Implementation/EM_Methods"
-    # sys.path.append(path)
+    data_writing() # write data
     #main_online_tune([50, 100, 200], [0.5]) # best window size 200
-    mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline = main_run(WINDOW_SIZE = 200)
-    # mean online 26s, offline 21s
+    #mean_smae_online, mean_smae_offline, test_stat, time_online, time_offline = main_run(WINDOW_SIZE = 200)
     # monte carlo test
     #res_pvals, res_stats = monte_carlo_test(1,10,nsamples=499)    
