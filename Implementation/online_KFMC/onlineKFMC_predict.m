@@ -1,6 +1,6 @@
 % this function is for stock experiments, where missing values are
 % sequentially revealed
-function [error] = onlineKFMC_predict(X, rank, beta, n_train, BATCH_SIZE, num_iter, minibatch_size)
+function [error] = onlineKFMC_predict(X, rank, beta, n_train, BATCH_SIZE, num_iter)
 X = table2array(X);
 X = X';
 p = size(X,1);
@@ -16,8 +16,6 @@ options.online_maxiter=num_iter;
 options.eta=0.5; 
 options.npass=1;
 
-if nargin < 7
-    minibatch_size = BATCH_SIZE;
 
 
 rng(1);
@@ -41,8 +39,6 @@ for i = 1:NUM_BATCH
         break
     end
     last = min(i * BATCH_SIZE + n_train,n);
-    %options.batch_size = min(minibatch_size, last - start + 1);
-    %options.batch_size = 1;
     options.batch_size = last - start + 1;
 
     

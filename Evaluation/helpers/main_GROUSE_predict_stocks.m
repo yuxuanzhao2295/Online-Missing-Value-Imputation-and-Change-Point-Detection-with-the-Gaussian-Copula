@@ -7,7 +7,7 @@ for i = 1:3
     for j = 1:3
         rank = rank_list(1,i);
         stepsize = size_list(1,j);
-        [e_return, e_price, ~, ~, ~, ~] = GROUSE_predict_stock(rank, stepsize, n_train, BATCH_SIZE, maxcycle, rank_price, stepsize_price);
+        [e_return, e_price, ~, ~, ~, ~] = GROUSE_predict_stock(rank, stepsize, n_train, BATCH_SIZE, maxcycle);
         err_return(i,j,:) = e_return;
         err_price(i,j,:) = e_price;
     end
