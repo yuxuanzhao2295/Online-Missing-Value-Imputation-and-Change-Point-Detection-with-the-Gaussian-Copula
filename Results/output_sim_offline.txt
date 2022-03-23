@@ -1,0 +1,30 @@
+Offline EM Results using 4 workers: 
+Runtime in seconds: mean 22.98, std 2.22
+cont imputation SMAE: mean 0.771, std 0.014
+ord imputation SMAE: mean 0.749, std 0.025
+bin imputation SMAE: mean 0.593, std 0.020
+Minibatch EM Results using 4 workers: 
+Runtime in seconds: mean 8.36, std 0.80
+cont imputation SMAE: mean 0.769, std 0.015
+ord imputation SMAE: mean 0.744, std 0.025
+bin imputation SMAE: mean 0.591, std 0.019
+Online EM Results using 4 workers: 
+Runtime in seconds: mean 9.06, std 0.43
+cont imputation SMAE: mean 0.808, std 0.014
+ord imputation SMAE: mean 0.800, std 0.027
+bin imputation SMAE: mean 0.634, std 0.019
+Offline EM Results using 1 workers: 
+Runtime in seconds: mean 37.77, std 0.22
+cont imputation SMAE: mean 0.771, std 0.014
+ord imputation SMAE: mean 0.749, std 0.025
+bin imputation SMAE: mean 0.593, std 0.020
+Minibatch EM Results using 1 workers: 
+Runtime in seconds: mean 9.31, std 0.32
+cont imputation SMAE: mean 0.769, std 0.015
+ord imputation SMAE: mean 0.744, std 0.025
+bin imputation SMAE: mean 0.591, std 0.019
+Online EM Results using 1 workers: 
+Runtime in seconds: mean 9.90, std 0.07
+cont imputation SMAE: mean 0.807, std 0.015
+ord imputation SMAE: mean 0.801, std 0.027
+bin imputation SMAE: mean 0.635, std 0.014
